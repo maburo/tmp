@@ -1,4 +1,5 @@
-const Mesh = require('./mesh.js')
+const Mesh = require('./mesh.js');
+const objLoader = require('./obj.js');
 
 function init() {
   const canvas = document.createElement('canvas');
@@ -16,7 +17,8 @@ function drawScene() {
   gl.depthFunc(gl.LEQUAL);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  m.draw();
+  // m.draw();
+  if (teapot) teapot.draw();
 }
 
 function render() {
@@ -38,5 +40,7 @@ void main() {
 
 const gl = init();
 const m = new Mesh(gl, vsSource, fsSource, [0, 0, 0,   0, 0.5, 0,  0.7, 0, 0], [2, 1, 0]);
+var teapot;
+objLoader(gl, vsSource, fsSource, './teapot.obj').then(x => teapot = x);
 
 requestAnimationFrame(render);

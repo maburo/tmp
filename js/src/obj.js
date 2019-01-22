@@ -1,5 +1,33 @@
+function loadShader(gl, type, source) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+
+  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      console.error('Error compiling shader', gl.getShaderInfoLog(shader));
+      gl.deleteShader(shader);
+      return;
+  }
+
+  return shader;
+}
+
+function initShaderProgram(gl, vsSrc, fsSrc) {
+  const program = gl.createProgram();
+  gl.attachShader(program, loadShader(gl, gl.VERTEX_SHADER, vsSrc));
+  gl.attachShader(program, loadShader(gl, gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(program);
+
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.error('Unable to init shader', gl.getProgramInfoLog(program));
+      gl.deleteProgram(program);
+  }
+
+  return program;
+}
+
 function parse(gl, program, text) {
-  const verticies = [];
+  const vertices = [];
   const faces = [];
 
   text.split('\n').forEach((line, i) => {
@@ -7,8 +35,7 @@ function parse(gl, program, text) {
 
     switch (tokens[0]) {
       case 'v': // vertex
-        // verticies[verticies.length] = {x: tokens[1], y: tokens[2], z: tokens[3]};
-        verticies.push(tokens[1], tokens[2], tokens[3]);
+        vertices.push(tokens[1], tokens[2], tokens[3]);
         break;
       case 'vn': // normarl
         break;
@@ -27,14 +54,21 @@ function parse(gl, program, text) {
     }
   });
 
-  const vertextBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vertextBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticies), gl.STATIC_DRAW);
-
   var indecies = [];
   for (var f of faces) {
     indecies = indecies.concat(f.v);
   }
+
+  return {gl, program, vertices, indecies};
+}
+
+function createBuffers({gl, program, vertices, indecies}) {
+  const vertexCount = vertices.length / 3;
+  const aVertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
+
+  const positionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
   const indexBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -42,40 +76,27 @@ function parse(gl, program, text) {
 
   return {
     draw: function() {
-      const vertexHandler = gl.getAttribLocation(program, 'aVertexPosition');
-      gl.vertexAttribPointer(vertexHandler, 3, gl.FLOAT, false, 0, 0);
-      gl.enableVertexAttribArray(vertexHandler);
+      gl.useProgram(program);
+
+      gl.enableVertexAttribArray(aVertexPosition);
+      gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+      gl.vertexAttribPointer(aVertexPosition, 3, gl.FLOAT, false, 0, 0);
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
-      gl.useProgram(program);
-      gl.drawElements(gl.TRIANGLES, 2000, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(gl.TRIANGLES, vertexCount, gl.UNSIGNED_SHORT, 0);
     }
-  };
+  }
 }
 
-function objLoader(gl, program, path) {
-  console.info('Load obj', path, program);
+function objLoader(gl, vs, fs, path) {
+  console.info('Load obj', path);
+
+  const program = initShaderProgram(gl, vs, fs);
 
   return fetch(path)
   .then(res => res.text())
-  .then(text => parse(gl, program, text));
-
-  // return new Promise((resolve, reject) => {
-    // var file = new XMLHttpRequest();
-    // file.open('GET', path, true);
-    // file.send(null)
-    // file.onreadystatechange = () => {
-    //   console.log('1');
-    //   if (file.readyState === 4 && file.status === 200) {
-    //     // resolve(file.responseText);
-    //   } else {
-    //     console.error(file.status);
-        // reject(file.status);
-      // }
-    // }
-  // });
+  .then(text => parse(gl, program, text))
+  .then(createBuffers);
 }
 
-module.exports = {
-  load: objLoader
-}
+module.exports = objLoader;

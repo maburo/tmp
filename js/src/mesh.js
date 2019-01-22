@@ -31,6 +31,7 @@ class Mesh {
     console.log(vs, fs, positions, indices);
 
     this.gl = gl;
+    this.vertexCount = positions.length / 3;
     this.program = initShaderProgram(gl, vs, fs);
     this.aVertexPosition = gl.getAttribLocation(this.program, 'aVertexPosition');
 
@@ -49,17 +50,16 @@ class Mesh {
     const gl = this.gl;
 
     gl.useProgram(this.program);
+
     gl.enableVertexAttribArray(this.aVertexPosition);
-
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
-
     gl.vertexAttribPointer(this.aVertexPosition, 3, gl.FLOAT, false, 0, 0);
 
     if (this.indexBuffer) {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-      gl.drawElements(gl.TRIANGLES, 3, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(gl.TRIANGLES, this.vertexCount, gl.UNSIGNED_SHORT, 0);
     } else {
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
+      gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
     }
   }
 }
