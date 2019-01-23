@@ -34,6 +34,7 @@ class Mesh {
     this.vertexCount = positions.length / 3;
     this.program = initShaderProgram(gl, vs, fs);
     this.aVertexPosition = gl.getAttribLocation(this.program, 'aVertexPosition');
+    this.aMatrix = gl.getUniformLocation(this.program, "uMatrix");
 
     this.positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
@@ -46,10 +47,11 @@ class Mesh {
     }
   }
 
-  draw() {
+  draw(matrix) {
     const gl = this.gl;
 
     gl.useProgram(this.program);
+    gl.uniformMatrix4fv(this.aMatrix, false, matrix);
 
     gl.enableVertexAttribArray(this.aVertexPosition);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);

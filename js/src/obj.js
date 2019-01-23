@@ -31,11 +31,11 @@ function parse(gl, program, text) {
   const faces = [];
 
   text.split('\n').forEach((line, i) => {
-    var tokens = line.split(' ');
+    var tokens = line.split(/\s+/);
 
     switch (tokens[0]) {
       case 'v': // vertex
-        vertices.push(tokens[1], tokens[2], tokens[3]);
+        vertices.push(parseInt(tokens[1]), parseInt(tokens[2]), parseInt(tokens[3]));
         break;
       case 'vn': // normarl
         break;
@@ -43,10 +43,9 @@ function parse(gl, program, text) {
         const f = [];
         for (var i = 1; i < tokens.length; i++) {
           const face = tokens[i].split('/');
-          f[f.length] = {v: face[0], t: face[1], n: face[2]};
+          f[f.length] = {v: parseInt(face[0]), t: parseInt(face[1]), n: parseInt(face[2])};
         }
         faces[faces.length] = f;
-
         break;
       case 'vt': // vertex texture
         break;
@@ -55,8 +54,10 @@ function parse(gl, program, text) {
   });
 
   var indecies = [];
-  for (var f of faces) {
-    indecies = indecies.concat(f.v);
+  for (const f of faces) {
+    for (const v of f) {
+      indecies.push(v.v);
+    }
   }
 
   return {gl, program, vertices, indecies};
@@ -65,6 +66,7 @@ function parse(gl, program, text) {
 function createBuffers({gl, program, vertices, indecies}) {
   const vertexCount = vertices.length / 3;
   const aVertexPosition = gl.getAttribLocation(program, 'aVertexPosition');
+  const aMatrix = gl.getUniformLocation(program, "uMatrix");
 
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -75,8 +77,9 @@ function createBuffers({gl, program, vertices, indecies}) {
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indecies), gl.STATIC_DRAW);
 
   return {
-    draw: function() {
+    draw: function(matrix) {
       gl.useProgram(program);
+      gl.uniformMatrix4fv(aMatrix, false, matrix);
 
       gl.enableVertexAttribArray(aVertexPosition);
       gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
