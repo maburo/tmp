@@ -1,6 +1,117 @@
 // https://github.com/toji/gl-matrix/blob/master/dist/gl-matrix.js
+const v3 = {
+  sub(a, b) {
+    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  },
+
+  normilize(vec) {
+    const len = v3.mag(vec)
+    return [vec[0] / len, vec[1] / len, vec[2] / len];
+  },
+
+  mag(vec) {
+    return Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+  },
+
+  cross(a, b) {
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[0] * b[2] - a[2] * b[0],
+      a[0] * b[1] - a[1] * b[0]
+    ];
+  }
+}
 
 const m4 = {
+  // lookAt(pos, target, u) {
+  //   const z = v3.normilize(v3.sub(pos, target));
+  //   const x = v3.normilize(v3.cross(u, z));
+  //   const y = v3.cross(x, z);
+  //
+  //   const m1 = [
+  //     x[0], y[0], z[0], 0,
+  //     y[1], y[1], z[1], 0,
+  //     x[2], y[2], z[2], 0,
+  //     0, 0, 0, 1
+  //   ];
+  //   const m2 = [
+  //     1, 0, 0, -pos[0],
+  //     0, 1, 0, -pos[1],
+  //     0, 0, 1, -pos[2],
+  //     0, 0, 0, 1
+  //   ];
+  //
+  //   return m4.mul(m1, m2);
+  // },
+  lookAt: function(eye, center, up) {
+    let x0, x1, x2, y0, y1, y2, z0, z1, z2, len;
+    let eyex = eye[0];
+    let eyey = eye[1];
+    let eyez = eye[2];
+    let upx = up[0];
+    let upy = up[1];
+    let upz = up[2];
+    let centerx = center[0];
+    let centery = center[1];
+    let centerz = center[2];
+
+    // if (Math.abs(eyex - centerx) < glMatrix.EPSILON &&
+    //     Math.abs(eyey - centery) < glMatrix.EPSILON &&
+    //     Math.abs(eyez - centerz) < glMatrix.EPSILON) {
+    //   return identity(out);
+    // }
+
+    z0 = eyex - centerx;
+    z1 = eyey - centery;
+    z2 = eyez - centerz;
+
+    len = 1 / Math.hypot(z0, z1, z2);
+    z0 *= len;
+    z1 *= len;
+    z2 *= len;
+
+    x0 = upy * z2 - upz * z1;
+    x1 = upz * z0 - upx * z2;
+    x2 = upx * z1 - upy * z0;
+    len = Math.hypot(x0, x1, x2);
+    if (!len) {
+      x0 = 0;
+      x1 = 0;
+      x2 = 0;
+    } else {
+      len = 1 / len;
+      x0 *= len;
+      x1 *= len;
+      x2 *= len;
+    }
+
+    y0 = z1 * x2 - z2 * x1;
+    y1 = z2 * x0 - z0 * x2;
+    y2 = z0 * x1 - z1 * x0;
+
+    len = Math.hypot(y0, y1, y2);
+    if (!len) {
+      y0 = 0;
+      y1 = 0;
+      y2 = 0;
+    } else {
+      len = 1 / len;
+      y0 *= len;
+      y1 *= len;
+      y2 *= len;
+    }
+    
+    return [
+      x0, y0, z0, 0,
+      x1, y1, z1, 0,
+      x2, y2, z2, 0,
+      -(x0 * eyex + x1 * eyey + x2 * eyez),
+      -(y0 * eyex + y1 * eyey + y2 * eyez),
+      -(z0 * eyex + z1 * eyey + z2 * eyez),
+      1
+    ];
+  },
+
   create: function() {
       return [1, 0, 0, 0,
               0, 1, 0, 0,
@@ -34,7 +145,16 @@ const m4 = {
     ];
   },
 
-  multiply: function(a, b) {
+  mmul: function(... args) {
+    var m = args[0];
+    for (var i = 1; i < args.length - 1; i++) {
+      m = m4.mul(m, args[i]);
+    }
+
+    return m;
+  },
+
+  mul: function(a, b) {
     var a00 = a[0 * 4 + 0];
     var a01 = a[0 * 4 + 1];
     var a02 = a[0 * 4 + 2];
@@ -105,5 +225,3 @@ const m4 = {
     ];
   }
 }
-
-module.exports = m4;

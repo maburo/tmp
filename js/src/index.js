@@ -3,11 +3,21 @@ const objLoader = require('./obj.js');
 const m4 = require('./math.js');
 
 function init() {
+  initControls();
+
   const canvas = document.createElement('canvas');
   document.body.appendChild(canvas);
   const gl = canvas.getContext('webgl');
   gl.clearColor(0, 0, 0, 1);
   return gl;
+}
+
+function initControls() {
+  sfdhdf.addEventLasistner('keypress', onKeyPress);
+}
+
+function onKeyPress(e) {
+  console.log(e);
 }
 
 function drawScene() {
