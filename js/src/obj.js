@@ -7,7 +7,7 @@ function parse(text) {
 
     switch (tokens[0]) {
       case 'v': // vertex
-        vertices.push(parseInt(tokens[1]), parseInt(tokens[2]), parseInt(tokens[3]));
+        vertices.push([parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3])]);
         break;
       case 'vn': // normarl
         break;
@@ -65,10 +65,23 @@ function parse(text) {
 // }
 
 function createMesh(data) {
-  console.log(data);
   const triangles = data.faces.map(f => {
-    return [data.vertices[f[0].v], data.vertices[f[1].v], data.vertices[f[2].v]]
+    const v1 = data.vertices[f[0].v - 1]
+    const v2 = data.vertices[f[1].v - 1]
+    const v3 = data.vertices[f[2].v - 1]
+
+    return [
+      v1[0], v1[1], v1[2],
+      v2[0], v2[1], v2[2],
+      v3[0], v3[1], v3[2]
+    ];
   })
+
+  // const triangles = [
+  //   [-1, -1, 0.0,
+  //   1, -1, 0.0,
+  //   0.0, 1, 0.0 ]
+  // ]
 
   return new Mesh(triangles);
 }

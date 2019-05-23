@@ -8,24 +8,42 @@ class Renderer {
 
     const canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
-    this.gl = canvas.getContext('webgl');
+    const gl = this.gl = canvas.getContext('webgl');
     this.gl.clearColor(0, 0, 0, 1);
 
     this.cam = {
-      pos: [0, 0, 4],
+      pos: [2, 3, 4],
       target: [0, 0, 0]
     };
 
+    const movespeed = 0.1;
     const mousepos = [0, 0];
     const mousesense = .04;
     window.addEventListener('mousemove', e => {
       if (e.buttons && e.button === 0) {
         this.cam.target[0] += (e.x - mousepos[0]) * mousesense;
-        this.cam.target[1] += (e.y - mousepos[1]) * mousesense;
+        this.cam.target[1] -= (e.y - mousepos[1]) * mousesense;
       }
       mousepos[0] = e.x;
       mousepos[1] = e.y;
     });
+
+    window.addEventListener('keypress', e => {
+      switch (e.code) {
+        case 'KeyW':
+          this.cam.pos[1] += movespeed;
+          break;
+        case 'KeyS':
+          this.cam.pos[1] -= movespeed;
+          break;
+        case 'KeyA':
+          this.cam.pos[0] -= movespeed;
+          break;
+        case 'KeyD':
+          this.cam.pos[0] += movespeed;
+          break;
+      }
+    })
 
     const frag = `
       void main() {
@@ -40,6 +58,20 @@ class Renderer {
       }`;
 
     this.prog = this.initShaderProgram(this.gl, vert, frag);
+
+    /*************************************************************************/
+    this.transform = gl.getUniformLocation(this.prog, 'transform');
+    this.aPos = gl.getAttribLocation(this.prog, 'aPos');
+
+    var vertices = [
+      -1, -1, 0.0,
+      1, -1, 0.0,
+      0.0, 1, 0.0
+    ];
+    const vb = this.vb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    /*************************************************************************/
   }
 
   loadShader(gl, type, source) {
@@ -97,33 +129,21 @@ class Renderer {
 
     const lookAtMtx = m4.lookAt(this.cam.pos, this.cam.target, [0, 1, 0]);
 
-    var vertices = [
-      -.5, -.25, 0.0,
-      .5, -.25, 0.0,
-      0.0, .5, 0.0
-    ];
+
 
     const mtx = m4.translation(0, 0, -3);
     const persp = m4.perspective(fov, aspect, 0.1, 100);
-
-    /**************************************************************************/
-
-    const vb = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    gl.useProgram(this.prog);
-
-    const transform = gl.getUniformLocation(this.prog, 'transform');
-    // console.log('m', m4.mul(persp, mtx));
-    // console.log('mm', m4.mmul(mtx, persp));
-
     const m = m4.mul(persp, lookAtMtx);
 
-    gl.uniformMatrix4fv(transform, false, m);
-    const aPos = gl.getAttribLocation(this.prog, 'aPos');
-    gl.vertexAttribPointer(aPos, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(aPos);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    /**************************************************************************/
+    gl.useProgram(this.prog);
+
+    gl.uniformMatrix4fv(this.transform, false, m);
+    gl.enableVertexAttribArray(this.aPos);
+
+    // gl.vertexAttribPointer(this.aPos, 3, gl.FLOAT, false, 0, 0);
+    // gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
+    // gl.drawArrays(gl.TRIANGLES, 0, 3);
 
     this.objects.forEach(o => o.draw(gl));
     /**************************************************************************/
