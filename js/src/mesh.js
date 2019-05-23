@@ -1,3 +1,25 @@
+class Mesh {
+  constructor(triangles) {
+    this.triangles = triangles;
+  }
+
+  init(gl) {
+    const vb = gl.createBuffer();
+    this.vb = gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    const vertices = [];
+
+    this.triangles.forEach(t => {
+      vertices.push(t[0], t[1], t[2]);
+    });
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+  }
+
+  draw(gl) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
+    gl.drawArrays(gl.TRIANGLES, 0, this.triangles.length);
+  }
+}
 // async function loadShader(gl, type, url) {
 //   console.log('Loading shader', url, '...');
 //

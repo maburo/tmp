@@ -28,9 +28,11 @@ function onKeyPress(e) {
 async function main() {
   initControls();
 
+  const obj = await objLoader('/assets/cube.obj')
+
   const renderer = new Renderer();
   renderer.init();
-
+  renderer.addMesh(obj);
 
   let time = Date.now();
 

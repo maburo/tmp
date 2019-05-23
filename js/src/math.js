@@ -1,4 +1,6 @@
 // https://github.com/toji/gl-matrix/blob/master/dist/gl-matrix.js
+// https://github.com/toji/gl-matrix/blob/master/src/mat4.js
+
 const v3 = {
   sub(a, b) {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -100,7 +102,7 @@ const m4 = {
       y1 *= len;
       y2 *= len;
     }
-    
+
     return [
       x0, y0, z0, 0,
       x1, y1, z1, 0,
@@ -126,13 +128,11 @@ const m4 = {
   perspective: function(fov, aspect, near, far) {
     const f = 1.0 / Math.tan(fov / 2);
     const nf = 1 / (near - far);
-    const a = (far + near) * nf;
-    const b = 2 * far * near * nf;
     return [
-      f/aspect, 0, 0, 0, // 0  1  2  3
-      0, fov, 0, 0,      // 4  5  6  7
-      0, 0, a, -1,       // 8  9  10 11
-      0, 0, b, 0         // 12 13 14 15
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far + near) * nf, -1,
+      0, 0, (2 * far * near) * nf, 0
     ];
   },
 

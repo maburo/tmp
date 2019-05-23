@@ -1,6 +1,10 @@
+//https://learnopengl.com/Getting-started/Camera
+
 class Renderer {
   init() {
     console.log('Init GL...');
+
+    this.objects = [];
 
     const canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
@@ -73,6 +77,12 @@ class Renderer {
     return program;
   }
 
+
+  addMesh(mesh) {
+    mesh.init(this.gl);
+    this.objects.push(mesh);
+  }
+
   drawScene(delta) {
     const gl = this.gl;
     gl.canvas.height = gl.canvas.clientHeight;
@@ -114,6 +124,8 @@ class Renderer {
     gl.vertexAttribPointer(aPos, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(aPos);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    this.objects.forEach(o => o.draw(gl));
     /**************************************************************************/
 
 
