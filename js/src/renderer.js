@@ -11,6 +11,8 @@ class Renderer {
     const gl = this.gl = canvas.getContext('webgl');
     this.gl.clearColor(0, 0, 0, 1);
 
+    this.camera = new Camera(90, gl.canvas.clientWidth / gl.canvas.clientHeight);
+
     this.cam = {
       pos: [2, 3, 4],
       target: [0, 0, 0]
@@ -18,11 +20,12 @@ class Renderer {
 
     const movespeed = 0.1;
     const mousepos = [0, 0];
-    const mousesense = .04;
+    const mousesense = .07;
     window.addEventListener('mousemove', e => {
       if (e.buttons && e.button === 0) {
-        this.cam.target[0] += (e.x - mousepos[0]) * mousesense;
-        this.cam.target[1] -= (e.y - mousepos[1]) * mousesense;
+        this.camera.rotate((e.x - mousepos[0]) * mousesense, (e.y - mousepos[1]) * -mousesense, 0);
+        // this.cam.target[0] += (e.x - mousepos[0]) * mousesense;
+        // this.cam.target[1] -= (e.y - mousepos[1]) * mousesense;
       }
       mousepos[0] = e.x;
       mousepos[1] = e.y;
@@ -31,16 +34,20 @@ class Renderer {
     window.addEventListener('keypress', e => {
       switch (e.code) {
         case 'KeyW':
-          this.cam.pos[1] += movespeed;
+          this.camera.move(0, 0, movespeed);
+          // this.cam.pos[1] += movespeed;
           break;
         case 'KeyS':
-          this.cam.pos[1] -= movespeed;
+          this.camera.move(0, 0, -movespeed);
+          // this.cam.pos[1] -= movespeed;
           break;
         case 'KeyA':
-          this.cam.pos[0] -= movespeed;
+          this.camera.move(-movespeed, 0, 0);
+          // this.cam.pos[0] -= movespeed;
           break;
         case 'KeyD':
-          this.cam.pos[0] += movespeed;
+          this.camera.move(movespeed, 0, 0);
+          // this.cam.pos[0] += movespeed;
           break;
       }
     })
@@ -124,21 +131,19 @@ class Renderer {
     gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const fov = 90 * Math.PI / 180;
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-
-    const lookAtMtx = m4.lookAt(this.cam.pos, this.cam.target, [0, 1, 0]);
-
-
-
-    const mtx = m4.translation(0, 0, -3);
-    const persp = m4.perspective(fov, aspect, 0.1, 100);
-    const m = m4.mul(persp, lookAtMtx);
+    // const fov = 90 * Math.PI / 180;
+    // const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    // const lookAtMtx = m4.lookAt(this.cam.pos, this.cam.target, [0, 1, 0]);
+    // const mtx = m4.translation(0, 0, -3);
+    // const persp = m4.perspective(fov, aspect, 0.1, 100);
+    // const m = m4.mul(persp, lookAtMtx);
 
     /**************************************************************************/
     gl.useProgram(this.prog);
 
-    gl.uniformMatrix4fv(this.transform, false, m);
+    // gl.uniformMatrix4fv(this.transform, false, m);
+    gl.uniformMatrix4fv(this.transform, false, this.camera.projMtx());
+
     gl.enableVertexAttribArray(this.aPos);
 
     // gl.vertexAttribPointer(this.aPos, 3, gl.FLOAT, false, 0, 0);

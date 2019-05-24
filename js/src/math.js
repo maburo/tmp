@@ -1,9 +1,18 @@
 // https://github.com/toji/gl-matrix/blob/master/dist/gl-matrix.js
 // https://github.com/toji/gl-matrix/blob/master/src/mat4.js
+var __degree = Math.PI / 180;
+
+function toRadian(a) {
+  return a * __degree;
+}
 
 const v3 = {
   sub(a, b) {
     return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  },
+
+  add(a, b) {
+    return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   },
 
   normilize(vec) {
