@@ -1,3 +1,5 @@
+// https://learnopengl.com/Getting-started/Camera
+
 class Camera {
   constructor(fov, aspect) {
     this.fov = fov * Math.PI / 180;

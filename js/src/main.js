@@ -28,11 +28,14 @@ function onKeyPress(e) {
 async function main() {
   initControls();
 
-  const obj = await objLoader('/assets/teapot.obj')
+  const obj1 = await objLoader('/assets/teapot.obj')
+  const obj2 = await objLoader('/assets/teapot.obj')
 
   const renderer = new Renderer();
-  renderer.init();
-  renderer.addMesh(obj);
+  await renderer.init();
+  renderer.addMesh(obj1);
+  renderer.addMesh(obj2);
+  obj2.pos = [7, 4, 4]
 
   let time = Date.now();
 
