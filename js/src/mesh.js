@@ -1,27 +1,52 @@
 class Mesh {
-  constructor(triangles) {
-    this.triangles = triangles;
+  constructor(faces) {
+    this.faces = faces;
     this.pos = [0, 0, 0];
   }
 
   init(gl) {
-    const vb = this.vb = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
-    const vertices = [];
+    const vertexData = [];
+    const normalData = [];
 
-    this.triangles.forEach(t => {
-      vertices.push(t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8]);
+    this.faces.forEach(f => {
+      const v1 = f.v[0];
+      const v2 = f.v[1];
+      const v3 = f.v[2];
+      const n1 = f.n[0];
+      const n2 = f.n[1];
+      const n3 = f.n[2];
+
+      vertexData.push(
+        v1[0], v1[1], v1[2],
+        v2[0], v2[1], v2[2],
+        v3[0], v3[1], v3[2]);
+
+      normalData.push(
+        n1[0], n1[1], n1[2],
+        n2[0], n2[1], n2[2],
+        n3[0], n3[1], n3[2]);
     });
 
-    this.elementCount = vertices.length / 3;
+    this.vertexCount = this.faces.length * 3;
 
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-    gl.disable(gl.CULL_FACE)
-    gl.cullFace(gl.FRONT_AND_BACK)
+    const vb = this.vb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+
+    const nb = this.nb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, nb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
   }
 
-  draw(gl) {
+  draw(gl, attrs) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
-    gl.drawArrays(gl.TRIANGLES, 0, this.elementCount);
+    gl.vertexAttribPointer(attrs.pos, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attrs.pos);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.nb);
+    gl.vertexAttribPointer(attrs.norm, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(attrs.norm);
+
+    gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
   }
 }

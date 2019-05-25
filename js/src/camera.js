@@ -8,7 +8,7 @@ class Camera {
     this.dir = [0, 0, -1];
     this.up = [0, 1, 0];
     this.rot = [0, 0, 0];
-    this.rotate(270, 0, 0)
+    this.rotate(270, -20, 0)
   }
 
   move(x, y, z) {

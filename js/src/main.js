@@ -28,7 +28,7 @@ function onKeyPress(e) {
 async function main() {
   initControls();
 
-  const obj1 = await objLoader('/assets/teapot.obj')
+  const obj1 = await objLoader('/assets/cube.obj')
   const obj2 = await objLoader('/assets/teapot.obj')
 
   const renderer = new Renderer();
