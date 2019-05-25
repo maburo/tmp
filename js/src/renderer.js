@@ -50,21 +50,12 @@ class Renderer {
     this.prog = this.initShaderProgram(this.gl, vert, frag);
 
     /*************************************************************************/
-    this.transform = gl.getUniformLocation(this.prog, 'projection');
+    this.projection = gl.getUniformLocation(this.prog, 'projection');
     this.model = gl.getUniformLocation(this.prog, 'model');
-    this.aPos = gl.getAttribLocation(this.prog, 'aPos');
-    this.aNormal = gl.getAttribLocation(this.prog, 'aNormal');
     this.objectColor = gl.getUniformLocation(this.prog, 'objectColor');
     this.lightColor = gl.getUniformLocation(this.prog, 'lightColor');
-    console.log(this.transform);
-    console.log(this.model);
-    console.log(this.aPos);
-    console.log(this.aNormal);
-    console.log(this.objectColor);
-    console.log(this.lightColor);
+    this.lightPos = gl.getUniformLocation(this.prog, 'lightPos');
     /*************************************************************************/
-
-
   }
 
   loadShader(gl, type, source) {
@@ -118,19 +109,15 @@ class Renderer {
 
     /**************************************************************************/
     gl.useProgram(this.prog);
-    gl.uniformMatrix4fv(this.transform, false, this.camera.projMtx());
-
-
+    gl.uniformMatrix4fv(this.projection, false, this.camera.projMtx());
 
     this.objects.forEach(o => {
-      // gl.vertexAttribPointer(this.aPos, 3, gl.FLOAT, false, 0, 0);
-      // gl.enableVertexAttribArray(this.aPos);
-
       gl.uniformMatrix4fv(this.model, false, m4.translation(o.pos[0], o.pos[1], o.pos[2]));
       gl.uniform3fv(this.objectColor, [.5, .5, .5]);
       gl.uniform3fv(this.lightColor, [1, 1, 1])
+      gl.uniform3fv(this.lightPos, [0, 14, 10]);
 
-      o.draw(gl, {pos: this.aPos, norm: this.aNormal});
+      o.draw(gl);
     });
     /**************************************************************************/
   }

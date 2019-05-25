@@ -40,12 +40,16 @@ class Mesh {
 
   draw(gl, attrs) {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
-    gl.vertexAttribPointer(attrs.pos, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(attrs.pos);
+    // gl.vertexAttribPointer(attrs.pos, 3, gl.FLOAT, false, 0, 0);
+    // gl.enableVertexAttribArray(attrs.pos);
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(0);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.nb);
-    gl.vertexAttribPointer(attrs.norm, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(attrs.norm);
+    // gl.vertexAttribPointer(attrs.norm, 3, gl.FLOAT, false, 0, 0);
+    // gl.enableVertexAttribArray(attrs.norm);
+    gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(1);
 
     gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
   }
