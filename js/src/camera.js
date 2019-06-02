@@ -4,26 +4,28 @@ class Camera {
   constructor(fov, aspect) {
     this.fov = fov * Math.PI / 180;
     this.aspect = aspect;
-    this.pos = [2, 5, 10];
+    this.pos = [0, 0, 0];
     this.dir = [0, 0, -1];
     this.up = [0, 1, 0];
     this.rot = [0, 0, 0];
-    this.rotate(270, -20, 0)
+
+    this.velocity = [0, 0, 0];
+    this.movespeed = 5;
   }
 
-  move(x, y, z) {
-    if (z > 0) {
-      this.pos = v3.add(this.pos, this.dir);
-    } else if (z < 0) {
-      this.pos = v3.sub(this.pos, this.dir);
+  update(delta) {
+    const speed = this.movespeed * delta;
+    if (this.velocity[0]) {
+      const z = v3.mul(v3.normilize(v3.cross(this.dir, this.up)), speed * this.velocity[0]);
+      this.pos = v3.add(this.pos, z);
     }
 
-    if (x > 0) {
-      const d = v3.normilize(v3.cross(this.dir, this.up));
-      this.pos = v3.add(this.pos, d);
-    } else if (x < 0) {
-      const d = v3.normilize(v3.cross(this.dir, this.up));
-      this.pos = v3.sub(this.pos, d);
+    if (this.velocity[1]) {
+      this.pos = v3.add(this.pos, v3.mul(this.up, speed * this.velocity[1]));
+    }
+
+    if (this.velocity[2]) {
+      this.pos = v3.add(this.pos, v3.mul(this.dir, speed * this.velocity[2]));
     }
   }
 

@@ -1,6 +1,10 @@
 //https://learnopengl.com/Getting-started/Camera
 
 class Renderer {
+  constructor(camera) {
+    this.camera = camera;
+  }
+
   async init() {
     console.log('Init GL...');
 
@@ -11,36 +15,6 @@ class Renderer {
     const gl = this.gl = canvas.getContext('webgl2');
     this.gl.clearColor(0, 0, 0, 1);
 
-    this.camera = new Camera(45, gl.canvas.clientWidth / gl.canvas.clientHeight);
-
-    const movespeed = 0.1;
-    const mousepos = [0, 0];
-    const mousesense = .07;
-    window.addEventListener('mousemove', e => {
-      if (e.buttons && e.button === 0) {
-        this.camera.rotate((e.x - mousepos[0]) * mousesense, (e.y - mousepos[1]) * -mousesense, 0);
-      }
-      mousepos[0] = e.x;
-      mousepos[1] = e.y;
-    });
-
-    window.addEventListener('keypress', e => {
-      switch (e.code) {
-        case 'KeyW':
-          this.camera.move(0, 0, movespeed);
-          break;
-        case 'KeyS':
-          this.camera.move(0, 0, -movespeed);
-          break;
-        case 'KeyA':
-          this.camera.move(-movespeed, 0, 0);
-          break;
-        case 'KeyD':
-          this.camera.move(movespeed, 0, 0);
-          break;
-      }
-    })
-
     const frag = await fetch('assets/shaders/simple_fragment.glsl')
       .then(resp => resp.text());
 
@@ -48,6 +22,9 @@ class Renderer {
       .then(resp => resp.text());
 
     this.prog = this.initShaderProgram(this.gl, vert, frag);
+
+    this.grid = new Grid();
+    this.grid.init(gl, this);
 
     /*************************************************************************/
     this.projection = gl.getUniformLocation(this.prog, 'projection');
@@ -100,12 +77,17 @@ class Renderer {
 
   drawScene(delta) {
     const gl = this.gl;
+    this.camera.aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     gl.canvas.height = gl.canvas.clientHeight;
     gl.canvas.width = gl.canvas.clientWidth;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.DEPTH_TEST);
     gl.depthFunc(gl.LEQUAL);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    this.camera.update(delta);
+
+    this.grid.draw(gl);
 
     /**************************************************************************/
     gl.useProgram(this.prog);

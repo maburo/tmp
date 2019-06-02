@@ -15,6 +15,10 @@ const v3 = {
     return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
   },
 
+  mul(v, s) {
+    return [v[0] * s, v[1] * s, v[2] * s];
+  },
+
   normilize(vec) {
     const len = v3.mag(vec)
     return [vec[0] / len, vec[1] / len, vec[2] / len];

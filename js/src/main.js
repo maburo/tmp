@@ -1,29 +1,6 @@
 function initControls() {
   console.log('Init controls...');
-  window.addEventListener('keypress', onKeyPress);
 }
-
-function onKeyPress(e) {
-  switch (e.code) {
-    case 'KeyW':
-      break;
-    case 'KeyS':
-      break;
-    case 'KeyA':
-      break;
-    case 'KeyD':
-      break;
-    case 'KeyQ':
-      break;
-    case 'KeyE':
-      break;
-  }
-}
-
-// async function loadShader(path) {
-//   var text = await fetch(path).then(resp => resp.text());
-//   return text;
-// }
 
 async function main() {
   initControls();
@@ -31,7 +8,63 @@ async function main() {
   const obj1 = await objLoader('/assets/cube.obj')
   const obj2 = await objLoader('/assets/teapot.obj')
 
-  const renderer = new Renderer();
+  const camera = new Camera(45, 1);
+  camera.pos = [2, 10, 20];
+  camera.rotate(280, -20, 0);
+
+  const movespeed = .5;
+  const mousepos = [0, 0];
+  const mousesense = .07;
+
+  window.addEventListener('mousemove', e => {
+    if (e.buttons && e.button === 0) {
+      camera.rotate((e.x - mousepos[0]) * mousesense, (e.y - mousepos[1]) * -mousesense, 0);
+    }
+    mousepos[0] = e.x;
+    mousepos[1] = e.y;
+  });
+
+  window.addEventListener('keydown', e => {
+    switch (e.code) {
+      case 'KeyW':
+        camera.velocity[2] = 1;
+        break;
+      case 'KeyS':
+        camera.velocity[2] = -1;
+        break;
+      case 'KeyA':
+        camera.velocity[0] = -1;
+        break;
+      case 'KeyD':
+        camera.velocity[0] = 1;
+        break;
+      case 'KeyQ':
+        camera.velocity[1] = 1;
+        break;
+      case 'KeyE':
+        camera.velocity[1] = -1;
+        break;
+    }
+  });
+
+  window.addEventListener('keyup', e => {
+    switch (e.code) {
+      case 'KeyW':
+      case 'KeyS':
+        camera.velocity[2] = 0;
+        break;
+      case 'KeyA':
+      case 'KeyD':
+        camera.velocity[0] = 0;
+        break;
+      case 'KeyQ':
+      case 'KeyE':
+        camera.velocity[1] = 0;
+        break;
+    }
+  });
+
+  const renderer = new Renderer(camera);
   await renderer.init();
   renderer.addMesh(obj1);
   renderer.addMesh(obj2);
@@ -41,15 +74,13 @@ async function main() {
 
   const loop = () => {
     const now = Date.now();
-    renderer.drawScene(now - this.time);
+    renderer.drawScene((now - this.time) / 1000);
     this.time = now;
 
     requestAnimationFrame(loop);
   }
 
   loop();
-
-  // var s = await loadShader('src/shaders/simple_fragment.glsl')
 }
 
 main();

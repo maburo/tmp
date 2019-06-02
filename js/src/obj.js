@@ -59,6 +59,6 @@ function objLoader(path) {
 
   return fetch(path)
   .then(res => res.text())
-  .then(text => parse(text))
+  .then(parse)
   .then(createMesh)
 }
