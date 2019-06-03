@@ -12,16 +12,33 @@ async function main() {
   camera.pos = [2, 10, 20];
   camera.rotate(280, -20, 0);
 
+  const renderer = new Renderer(camera);
+
+  var mousedown = false;
+  const mousePosBeforeClick = [0, 0];
   const movespeed = .5;
   const mousepos = [0, 0];
   const mousesense = .07;
 
   window.addEventListener('mousemove', e => {
-    if (e.buttons && e.button === 0) {
+    if (mousedown) {
       camera.rotate((e.x - mousepos[0]) * mousesense, (e.y - mousepos[1]) * -mousesense, 0);
     }
     mousepos[0] = e.x;
     mousepos[1] = e.y;
+  });
+
+  window.addEventListener('mousedown', e => {
+    mousedown = true;
+    mousePosBeforeClick[0] = e.x
+    mousePosBeforeClick[1] = e.y;
+  });
+
+  window.addEventListener('mouseup', e => {
+    mousedown = false;
+    if (mousePosBeforeClick[0] === e.x && mousePosBeforeClick[1] === e.y) {
+      renderer.rayPick(e.x, e.y);
+    }
   });
 
   window.addEventListener('keydown', e => {
@@ -64,10 +81,9 @@ async function main() {
     }
   });
 
-  const renderer = new Renderer(camera);
   await renderer.init();
-  renderer.addMesh(obj1);
-  renderer.addMesh(obj2);
+  await renderer.addMesh(obj1);
+  await renderer.addMesh(obj2);
   obj2.pos = [7, 4, 4]
 
   let time = Date.now();
@@ -84,3 +100,15 @@ async function main() {
 }
 
 main();
+
+// var i = geom.ray_plane(
+//   {
+//     dir: v3.normalize([0, 1, 0]),
+//     origin: [0, -1, 0]
+//   },
+//   {
+//     normal: v3.normalize([0, 1, 1]),
+//     center: [0, 0, 0]
+//   }
+// );
+// console.log(i);

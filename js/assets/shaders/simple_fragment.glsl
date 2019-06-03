@@ -1,23 +1,7 @@
 #version 300 es
 // https://www.khronos.org/files/webgl/webgl-reference-card-1_0.pdf
 precision mediump float;
-//
-// uniform vec3 objectColor;
-// uniform vec3 lightColor;
-// uniform vec3 lightPos;
-//
-// in vec3 Normal;
-//
-// out vec4 fragColor;
-//
-// void main() {
-//   float ambientStrength = 0.25;
-//   vec3 ambient = ambientStrength * lightColor;
-//   vec3 result = ambient * objectColor;
-//
-//   // gl_FragColor = vec4(1.0, 1, 1, 1);
-//   fragColor = vec4(result, 1.0);
-// }
+
 out vec4 FragColor;
 
 in vec3 Normal;
@@ -41,4 +25,13 @@ void main()
 
     vec3 result = (ambient + diffuse) * objectColor;
     FragColor = vec4(result, 1.0);
+    // FragColor = vec4(0.5, 0.5, 0.5, 1.0);
 }
+
+// precision mediump float;
+// uniform vec4 lineColor;
+// out vec4 FragColor;
+//
+// void main() {
+//   FragColor = vec4(lineColor.xyz, .01);
+// }

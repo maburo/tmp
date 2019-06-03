@@ -15,16 +15,16 @@ class Renderer {
     const gl = this.gl = canvas.getContext('webgl2');
     this.gl.clearColor(0, 0, 0, 1);
 
+    this.grid = new Grid();
+    this.grid.init(gl, this);
+
+
     const frag = await fetch('assets/shaders/simple_fragment.glsl')
       .then(resp => resp.text());
-
     const vert = await fetch('assets/shaders/simple_vertex.glsl')
       .then(resp => resp.text());
 
-    this.prog = this.initShaderProgram(this.gl, vert, frag);
-
-    this.grid = new Grid();
-    this.grid.init(gl, this);
+    this.prog = this.initShaderProgram(vert, frag);
 
     /*************************************************************************/
     this.projection = gl.getUniformLocation(this.prog, 'projection');
@@ -49,7 +49,8 @@ class Renderer {
     return shader;
   }
 
-  initShaderProgram(gl, vsSrc, fsSrc) {
+  initShaderProgram(vsSrc, fsSrc) {
+    const gl = this.gl;
     console.log('Init shader...');
     const program = gl.createProgram();
 
@@ -70,8 +71,8 @@ class Renderer {
     return program;
   }
 
-  addMesh(mesh) {
-    mesh.init(this.gl);
+  async addMesh(mesh) {
+    await mesh.init(this.gl, this);
     this.objects.push(mesh);
   }
 
@@ -90,28 +91,13 @@ class Renderer {
     this.grid.draw(gl);
 
     /**************************************************************************/
-    gl.useProgram(this.prog);
-    gl.uniformMatrix4fv(this.projection, false, this.camera.projMtx());
-
-    this.objects.forEach(o => {
-      gl.uniformMatrix4fv(this.model, false, m4.translation(o.pos[0], o.pos[1], o.pos[2]));
-      gl.uniform3fv(this.objectColor, [.5, .5, .5]);
-      gl.uniform3fv(this.lightColor, [1, 1, 1])
-      gl.uniform3fv(this.lightPos, [0, 14, 10]);
-
-      o.draw(gl);
-    });
+    this.objects.forEach(o => o.draw(gl));
     /**************************************************************************/
   }
 
-  // async createMesh() {
-  //   const mesh = new Mesh();
-  //   await mesh.init(this.gl,
-  //     'src/shaders/simple_vertex.glsl',
-  //     'src/shaders/simple_fragment.glsl',
-  //     [0, 0, 0, 1, 1, 1, 0, 1, 1],
-  //     [0, 1, 2]);
-  //
-  //   return mesh;
-  // }
+  rayPick(x, y) {
+    const p = new Pointer();
+    p.init(this.gl, this)
+    this.objects.push(p);
+  }
 }

@@ -1,6 +1,7 @@
 // https://github.com/toji/gl-matrix/blob/master/dist/gl-matrix.js
 // https://github.com/toji/gl-matrix/blob/master/src/mat4.js
-var __degree = Math.PI / 180;
+const __degree = Math.PI / 180;
+const EPSILON = 0.000001;
 
 function toRadian(a) {
   return a * __degree;
@@ -19,13 +20,17 @@ const v3 = {
     return [v[0] * s, v[1] * s, v[2] * s];
   },
 
-  normilize(vec) {
+  normalize(vec) {
     const len = v3.mag(vec)
     return [vec[0] / len, vec[1] / len, vec[2] / len];
   },
 
   mag(vec) {
     return Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+  },
+
+  dot(a, b) {
+    return [ a[0] * b[0] + a[1] * b[1] + a[2] * b[2] ];
   },
 
   cross(a, b) {
@@ -39,8 +44,8 @@ const v3 = {
 
 const m4 = {
   // lookAt(pos, target, u) {
-  //   const z = v3.normilize(v3.sub(pos, target));
-  //   const x = v3.normilize(v3.cross(u, z));
+  //   const z = v3.normalize(v3.sub(pos, target));
+  //   const x = v3.normalize(v3.cross(u, z));
   //   const y = v3.cross(x, z);
   //
   //   const m1 = [

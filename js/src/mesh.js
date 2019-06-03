@@ -4,7 +4,24 @@ class Mesh {
     this.pos = [0, 0, 0];
   }
 
-  init(gl) {
+  async init(gl, renderer) {
+    this.renderer = renderer;
+
+    const frag = await fetch('assets/shaders/simple_fragment.glsl')
+      .then(resp => resp.text());
+    const vert = await fetch('assets/shaders/simple_vertex.glsl')
+      .then(resp => resp.text());
+
+    this.prog = renderer.initShaderProgram(vert, frag);
+
+    /*************************************************************************/
+    this.projection = gl.getUniformLocation(this.prog, 'projection');
+    this.model = gl.getUniformLocation(this.prog, 'model');
+    this.objectColor = gl.getUniformLocation(this.prog, 'objectColor');
+    this.lightColor = gl.getUniformLocation(this.prog, 'lightColor');
+    this.lightPos = gl.getUniformLocation(this.prog, 'lightPos');
+    /*************************************************************************/
+
     const vertexData = [];
     const normalData = [];
 
@@ -38,7 +55,15 @@ class Mesh {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
   }
 
-  draw(gl, attrs) {
+  draw(gl) {
+    gl.useProgram(this.prog);
+    gl.uniformMatrix4fv(this.projection, false, this.renderer.camera.projMtx());
+    gl.uniformMatrix4fv(this.model, false, m4.translation(this.pos[0], this.pos[1], this.pos[2]));
+
+    gl.uniform3fv(this.objectColor, [.5, .5, .5]);
+    gl.uniform3fv(this.lightColor, [1, 1, 1 ])
+    gl.uniform3fv(this.lightPos, [0, 14, 10]);
+
     gl.bindBuffer(gl.ARRAY_BUFFER, this.vb);
     gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(0);

@@ -2,6 +2,7 @@
 
 class Camera {
   constructor(fov, aspect) {
+    this.dirty = true;
     this.fov = fov * Math.PI / 180;
     this.aspect = aspect;
     this.pos = [0, 0, 0];
@@ -16,21 +17,25 @@ class Camera {
   update(delta) {
     const speed = this.movespeed * delta;
     if (this.velocity[0]) {
-      const z = v3.mul(v3.normilize(v3.cross(this.dir, this.up)), speed * this.velocity[0]);
+      const z = v3.mul(v3.normalize(v3.cross(this.dir, this.up)), speed * this.velocity[0]);
       this.pos = v3.add(this.pos, z);
+      this.dirty = true;
     }
 
     if (this.velocity[1]) {
       this.pos = v3.add(this.pos, v3.mul(this.up, speed * this.velocity[1]));
+      this.dirty = true;
     }
 
     if (this.velocity[2]) {
       this.pos = v3.add(this.pos, v3.mul(this.dir, speed * this.velocity[2]));
+      this.dirty = true;
     }
   }
 
   setPosition(x, y, z) {
     this.pos = [x, y, z];
+    this.dirty = true;
   }
 
   rotate(x, y, z) {
@@ -46,17 +51,23 @@ class Camera {
     const vx = cosY * Math.cos(rx);
     const vy = Math.sin(ry);
     const vz = cosY * Math.sin(rx);
-    this.dir = v3.normilize([vx, vy, vz]);
+    this.dir = v3.normalize([vx, vy, vz]);
+    this.dirty = true;
   }
 
   setRotation(x, y, z) {
     this.rot = [x, y, z];
+    this.dirty = true;
   }
 
   projMtx() {
-    const lookAtMtx = m4.lookAt(this.pos, v3.add(this.pos, this.dir), this.up);
-    const perspMtx = m4.perspective(this.fov, this.aspect, 0.1, 100);
+    if (this.dirty) {
+      const lookAtMtx = m4.lookAt(this.pos, v3.add(this.pos, this.dir), this.up);
+      const perspMtx = m4.perspective(this.fov, this.aspect, 0.1, 100);
 
-    return m4.mul(perspMtx, lookAtMtx);
+      this.pMtx = m4.mul(perspMtx, lookAtMtx);
+    }
+
+    return this.pMtx;
   }
 }

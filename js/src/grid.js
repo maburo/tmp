@@ -3,6 +3,7 @@ class Grid {
     this.renderer = renderer;
 
     const vs = `#version 300 es
+    precision mediump float;
     layout (location = 0) in vec3 aPos;
     uniform mat4 model;
     uniform mat4 projection;
@@ -21,7 +22,7 @@ class Grid {
       }
     `;
 
-    this.prog = renderer.initShaderProgram(gl, vs, fs);
+    this.prog = renderer.initShaderProgram(vs, fs);
     this.projection = gl.getUniformLocation(this.prog, 'projection');
     this.model = gl.getUniformLocation(this.prog, 'model');
     this.lineColor = gl.getUniformLocation(this.prog, 'lineColor');
