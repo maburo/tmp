@@ -30,7 +30,8 @@ class Pointer {
       }
     `;
 
-    this.prog = renderer.initShaderProgram(vs, fs);
+    this.prog = renderer.createShaderProgram('pointer_shader', vs, fs);
+
     this.projection = gl.getUniformLocation(this.prog, 'projection');
     this.model = gl.getUniformLocation(this.prog, 'model');
     this.aColor = gl.getUniformLocation(this.prog, 'color');

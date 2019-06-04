@@ -9,6 +9,7 @@ class Renderer {
     console.log('Init GL...');
 
     this.objects = [];
+    this.shaders = {};
 
     const canvas = document.createElement('canvas');
     document.body.appendChild(canvas);
@@ -17,22 +18,6 @@ class Renderer {
 
     this.grid = new Grid();
     this.grid.init(gl, this);
-
-
-    const frag = await fetch('assets/shaders/simple_fragment.glsl')
-      .then(resp => resp.text());
-    const vert = await fetch('assets/shaders/simple_vertex.glsl')
-      .then(resp => resp.text());
-
-    this.prog = this.initShaderProgram(vert, frag);
-
-    /*************************************************************************/
-    this.projection = gl.getUniformLocation(this.prog, 'projection');
-    this.model = gl.getUniformLocation(this.prog, 'model');
-    this.objectColor = gl.getUniformLocation(this.prog, 'objectColor');
-    this.lightColor = gl.getUniformLocation(this.prog, 'lightColor');
-    this.lightPos = gl.getUniformLocation(this.prog, 'lightPos');
-    /*************************************************************************/
   }
 
   loadShader(gl, type, source) {
@@ -69,6 +54,14 @@ class Renderer {
     }
 
     return program;
+  }
+
+  createShaderProgram(name, vsSrc, fsSrc) {
+    if (!this.shaders[name]) {
+      this.shaders[name] = this.initShaderProgram(vsSrc, fsSrc);
+    }
+
+    return this.shaders[name];
   }
 
   async addMesh(mesh) {

@@ -12,7 +12,7 @@ class Mesh {
     const vert = await fetch('assets/shaders/simple_vertex.glsl')
       .then(resp => resp.text());
 
-    this.prog = renderer.initShaderProgram(vert, frag);
+    this.prog = renderer.createShaderProgram('mesh_shader', vert, frag);
 
     /*************************************************************************/
     this.projection = gl.getUniformLocation(this.prog, 'projection');

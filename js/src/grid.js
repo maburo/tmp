@@ -22,7 +22,7 @@ class Grid {
       }
     `;
 
-    this.prog = renderer.initShaderProgram(vs, fs);
+    this.prog = renderer.createShaderProgram('grid_shader', vs, fs);
     this.projection = gl.getUniformLocation(this.prog, 'projection');
     this.model = gl.getUniformLocation(this.prog, 'model');
     this.lineColor = gl.getUniformLocation(this.prog, 'lineColor');
