@@ -9,10 +9,10 @@ async function main() {
   const obj2 = await objLoader('/assets/teapot.obj')
 
   const camera = new Camera(45, 1);
-  // camera.pos = [2, 10, 20];
-  // camera.rotate(280, -20, 0);
+  camera.pos = [2, 10, 20];
+  camera.rotate(280, -20, 0);
 
-  camera.pos = [0, 0, 0];
+  // camera.pos = [0, 0, 0];
   // camera.rotate(0, 0, 0);
 
   const renderer = new Renderer(camera);
@@ -94,9 +94,9 @@ async function main() {
   renderer.addMesh(new Pointer([1, 0, 0], [1, 0, 0], 10))
   renderer.addMesh(new Pointer([0, 1, 0], [0, 1, 0], 10))
   renderer.addMesh(new Pointer([0, 0, 1], [0, 0, 1], 10))
-  // await renderer.addMesh(obj1);
-  // await renderer.addMesh(obj2);
-  // obj2.pos = [7, 4, 4]
+  await renderer.addMesh(obj1);
+  await renderer.addMesh(obj2);
+  obj2.pos = [7, 4, 4]
 
   let time = Date.now();
 
