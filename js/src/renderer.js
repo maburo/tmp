@@ -84,7 +84,12 @@ class Renderer {
     this.grid.draw(gl);
 
     /**************************************************************************/
-    this.objects.forEach(o => o.draw(gl));
+    this.objects.forEach(o => {
+      if (this.drawBBox) {
+        o.bbox;
+      }
+      o.draw(gl);
+    });
     /**************************************************************************/
   }
 

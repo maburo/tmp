@@ -25,7 +25,21 @@ class Mesh {
     const vertexData = [];
     const normalData = [];
 
+    var min = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE];
+    var max = [Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE];
+
     this.faces.forEach(f => {
+      f.v.forEach(v => {
+        if (v[0] > max[0]) max[0] = v[0];
+        if (v[0] < min[0]) min[0] = v[0];
+
+        if (v[1] > max[1]) max[1] = v[1];
+        if (v[1] < min[1]) min[1] = v[1];
+
+        if (v[2] > max[2]) max[2] = v[2];
+        if (v[2] < min[2]) min[2] = v[2];
+      });
+
       const v1 = f.v[0];
       const v2 = f.v[1];
       const v3 = f.v[2];
@@ -44,6 +58,7 @@ class Mesh {
         n3[0], n3[1], n3[2]);
     });
 
+    this.bbox = {a: min, b: max};
     this.vertexCount = this.faces.length * 3;
 
     const vb = this.vb = gl.createBuffer();
