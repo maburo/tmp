@@ -102,7 +102,6 @@ class Renderer {
     }
 
     this.camera.getProjMtx();
-    const invProjMtx = this.camera.invProjMtx()
     const camPos = this.camera.pos;
 
     const homogeneousClipCoords = [
@@ -112,15 +111,14 @@ class Renderer {
     ];
 
     const rayEye = v3.transformMat4(homogeneousClipCoords, m4.inverse(this.camera.perspMtx));
-    // rayEye[2] = -1;
-
     const rayWor = v3.transformMat4(rayEye, m4.inverse(this.camera.viewMtx))
 
-    var tmp = v3.normalize(rayWor);
-    tmp = rayWor;
+    var tmp = rayWor;
+
+    tmp = v3.normalize(v3.sub(tmp, camPos))
+    tmp = v3.add(camPos, v3.mul(tmp, 10))
 
     const p = new Pointer(tmp, [1, 1, 0], 3);
-
     p.init(this.gl, this)
     this.objects.push(p);
   }
