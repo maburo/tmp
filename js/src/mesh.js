@@ -57,7 +57,7 @@ class Mesh {
 
   draw(gl) {
     gl.useProgram(this.prog);
-    gl.uniformMatrix4fv(this.projection, false, this.renderer.camera.projMtx());
+    gl.uniformMatrix4fv(this.projection, false, this.renderer.camera.getProjMtx());
     gl.uniformMatrix4fv(this.model, false, m4.translation(this.pos[0], this.pos[1], this.pos[2]));
 
     gl.uniform3fv(this.objectColor, [.5, .5, .5]);

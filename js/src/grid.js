@@ -60,7 +60,7 @@ class Grid {
   draw(gl) {
     gl.useProgram(this.prog);
     gl.uniformMatrix4fv(this.model, false, m4.create());
-    gl.uniformMatrix4fv(this.projection, false, this.renderer.camera.projMtx());
+    gl.uniformMatrix4fv(this.projection, false, this.renderer.camera.getProjMtx());
     gl.uniform4fv(this.lineColor, [1, 0, 0, 1]);
 
     gl.enableVertexAttribArray(0);

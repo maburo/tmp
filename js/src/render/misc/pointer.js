@@ -9,30 +9,32 @@ class Pointer {
     this.renderer = renderer;
 
     const vs = `#version 300 es
+    precision mediump float;
     layout (location = 0) in vec3 aPos;
     uniform mat4 model;
     uniform mat4 projection;
-
+    uniform float size;
 
     void main(void) {
       gl_Position = projection * model * vec4(aPos, 1.0);
-      gl_PointSize = 5.0;
+      gl_PointSize = size;
     }`
 
     const fs = `#version 300 es
       precision mediump float;
-      uniform vec4 lineColor;
+      uniform vec3 color;
       out vec4 FragColor;
 
       void main() {
-        FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+        FragColor = vec4(color.xyz, .01);
       }
     `;
 
-    this.prog = renderer.initShaderProgram(gl, vs, fs);
+    this.prog = renderer.initShaderProgram(vs, fs);
     this.projection = gl.getUniformLocation(this.prog, 'projection');
     this.model = gl.getUniformLocation(this.prog, 'model');
-    this.lineColor = gl.getUniformLocation(this.prog, 'color');
+    this.aColor = gl.getUniformLocation(this.prog, 'color');
+    this.aSize = gl.getUniformLocation(this.prog, 'size');
 
     const vb = this.vb = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vb);
@@ -42,8 +44,9 @@ class Pointer {
   draw(gl) {
     gl.useProgram(this.prog);
     gl.uniformMatrix4fv(this.model, false, m4.create());
-    gl.uniformMatrix4fv(this.projection, false, this.renderer.camera.projMtx());
-    gl.uniform4fv(this.lineColor, this.color);
+    gl.uniformMatrix4fv(this.projection, false, this.renderer.camera.getProjMtx());
+    gl.uniform3fv(this.aColor, this.color);
+    gl.uniform1f(this.aSize, this.size);
 
     gl.enableVertexAttribArray(0);
 

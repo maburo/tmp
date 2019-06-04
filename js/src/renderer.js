@@ -96,7 +96,31 @@ class Renderer {
   }
 
   rayPick(x, y) {
-    const p = new Pointer();
+    if (!x && !y) {
+      x = this.gl.canvas.clientWidth / 2;
+      y = this.gl.canvas.clientHeight / 2;
+    }
+
+    this.camera.getProjMtx();
+    const invProjMtx = this.camera.invProjMtx()
+    const camPos = this.camera.pos;
+
+    const homogeneousClipCoords = [
+      (2 * x) / this.gl.canvas.clientWidth - 1,
+      1 - (2 * y) / this.gl.canvas.clientHeight,
+      -1
+    ];
+
+    const rayEye = v3.transformMat4(homogeneousClipCoords, m4.inverse(this.camera.perspMtx));
+    // rayEye[2] = -1;
+
+    const rayWor = v3.transformMat4(rayEye, m4.inverse(this.camera.viewMtx))
+
+    var tmp = v3.normalize(rayWor);
+    tmp = rayWor;
+
+    const p = new Pointer(tmp, [1, 1, 0], 3);
+
     p.init(this.gl, this)
     this.objects.push(p);
   }

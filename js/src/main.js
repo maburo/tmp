@@ -9,8 +9,11 @@ async function main() {
   const obj2 = await objLoader('/assets/teapot.obj')
 
   const camera = new Camera(45, 1);
-  camera.pos = [2, 10, 20];
-  camera.rotate(280, -20, 0);
+  // camera.pos = [2, 10, 20];
+  // camera.rotate(280, -20, 0);
+
+  camera.pos = [0, 0, 0];
+  // camera.rotate(0, 0, 0);
 
   const renderer = new Renderer(camera);
 
@@ -38,6 +41,12 @@ async function main() {
     mousedown = false;
     if (mousePosBeforeClick[0] === e.x && mousePosBeforeClick[1] === e.y) {
       renderer.rayPick(e.x, e.y);
+    }
+  });
+
+  window.addEventListener('keypress', e => {
+    if (e.code === 'Space') {
+      renderer.rayPick();
     }
   });
 
@@ -82,9 +91,12 @@ async function main() {
   });
 
   await renderer.init();
-  await renderer.addMesh(obj1);
-  await renderer.addMesh(obj2);
-  obj2.pos = [7, 4, 4]
+  renderer.addMesh(new Pointer([1, 0, 0], [1, 0, 0], 10))
+  renderer.addMesh(new Pointer([0, 1, 0], [0, 1, 0], 10))
+  renderer.addMesh(new Pointer([0, 0, 1], [0, 0, 1], 10))
+  // await renderer.addMesh(obj1);
+  // await renderer.addMesh(obj2);
+  // obj2.pos = [7, 4, 4]
 
   let time = Date.now();
 
@@ -100,15 +112,3 @@ async function main() {
 }
 
 main();
-
-// var i = geom.ray_plane(
-//   {
-//     dir: v3.normalize([0, 1, 0]),
-//     origin: [0, -1, 0]
-//   },
-//   {
-//     normal: v3.normalize([0, 1, 1]),
-//     center: [0, 0, 0]
-//   }
-// );
-// console.log(i);
