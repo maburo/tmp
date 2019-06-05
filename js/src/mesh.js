@@ -68,6 +68,39 @@ class Mesh {
     const nb = this.nb = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, nb);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalData), gl.STATIC_DRAW);
+
+    this.createBBox(gl);
+  }
+
+  createBBox(gl) {
+    const a = this.bbox.a;
+    const b = this.bbox.b;
+    const vb = this.bbox.vb = gl.createBuffer();
+    const ib = this.bbox.ib = gl.createBuffer();
+
+    const vertexData = [
+      a[0], a[1], a[2],
+      b[0], a[1], a[2],
+      b[0], b[1], a[2],
+      a[0], b[1], a[2],
+
+      a[0], a[1], b[2],
+      b[0], a[1], b[2],
+      b[0], b[1], b[2],
+      a[0], b[1], b[2]
+    ];
+
+    const indexData = [
+      0, 1, 1, 2, 2, 3, 3, 0,
+      0, 4, 1, 5, 2, 6, 3, 7,
+      4, 5, 5, 6, 6, 7, 7, 4
+    ];
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexData), gl.STATIC_DRAW);
   }
 
   draw(gl) {

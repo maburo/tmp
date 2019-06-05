@@ -18,6 +18,36 @@ class Renderer {
 
     this.grid = new Grid();
     this.grid.init(gl, this);
+
+    this.createBBoxShader(gl);
+  }
+
+  createBBoxShader(gl) {
+    const vs = `#version 300 es
+    precision mediump float;
+    layout (location = 0) in vec3 aPos;
+    uniform mat4 model;
+    uniform mat4 projection;
+
+    void main(void) {
+      gl_Position = projection * model * vec4(aPos, 1.0);
+    }`
+
+    const fs = `#version 300 es
+      precision mediump float;
+      uniform vec3 color;
+      out vec4 FragColor;
+
+      void main() {
+        FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+      }
+    `;
+
+    this.bbox = {};
+    this.bbox.shader = this.createShaderProgram('bbox_shader', vs, fs);
+    this.bbox.projection = gl.getUniformLocation(this.bbox.shader, 'projection');
+    this.bbox.model = gl.getUniformLocation(this.bbox.shader, 'model');
+    this.bbox.color = gl.getUniformLocation(this.bbox.shader, 'color');
   }
 
   loadShader(gl, type, source) {
@@ -85,9 +115,19 @@ class Renderer {
 
     /**************************************************************************/
     this.objects.forEach(o => {
-      if (this.drawBBox) {
-        o.bbox;
+      if (true && o.bbox || this.drawBBox) {
+        gl.useProgram(this.bbox.shader);
+        gl.uniformMatrix4fv(this.bbox.model, false, m4.translation(o.pos[0], o.pos[1], o.pos[2]));
+        gl.uniformMatrix4fv(this.bbox.projection, false, this.camera.getProjMtx());
+        gl.uniform3fv(this.bbox.color, [1, 0, 0]);
+        gl.enableVertexAttribArray(0);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, o.bbox.vb);
+        gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, o.bbox.ib);
+        gl.drawElements(gl.LINES, 24, gl.UNSIGNED_SHORT, o.bbox.indexBuffer);
       }
+
       o.draw(gl);
     });
     /**************************************************************************/
